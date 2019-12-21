@@ -5,12 +5,6 @@ import { Recipe } from './models/recipe';
 
 @Injectable()
 export class RecipesService {
-  /**
-   * MOCK
-   * Put some real business logic here
-   * Left for demonstration purposes
-   */
-
   private readonly recipes: Recipe[] = [];
 
   async create(data: NewRecipeInput): Promise<Recipe> {
