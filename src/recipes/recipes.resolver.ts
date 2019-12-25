@@ -1,10 +1,13 @@
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'apollo-server-express';
 import { NewRecipeInput } from './dto/new-recipe.input';
 import { RecipesArgs } from './dto/recipes.args';
 import { Recipe } from './models/recipe';
 import { RecipesService } from './recipes.service';
+import { GqlAuthGuard } from '../guards/gql-auth.guard';
+import { CurrentUser } from '../decorators/user.decorator';
+import { User } from '../models/user';
 
 const pubSub = new PubSub();
 
@@ -22,16 +25,21 @@ export class RecipesResolver {
   }
 
   @Query(returns => [Recipe])
-  recipes(@Args() recipesArgs: RecipesArgs): Promise<Recipe[]> {
+  @UseGuards(GqlAuthGuard)
+  recipes(@Args() recipesArgs: RecipesArgs, @CurrentUser() user: User): Promise<Recipe[]> {
     return this.recipesService.findAll(recipesArgs);
   }
 
+  private triggerName = 'recipeAdded';
+
   @Mutation(returns => Recipe)
+  @UseGuards(GqlAuthGuard)
   async addRecipe(
     @Args('newRecipeData') newRecipeData: NewRecipeInput,
   ): Promise<Recipe> {
     const recipe = await this.recipesService.create(newRecipeData);
-    pubSub.publish('recipeAdded', { recipeAdded: recipe });
+    // trigger subscription
+    await pubSub.publish(this.triggerName, { recipeAdded: recipe });
     return recipe;
   }
 
@@ -42,6 +50,6 @@ export class RecipesResolver {
 
   @Subscription(returns => Recipe)
   recipeAdded() {
-    return pubSub.asyncIterator('recipeAdded');
+    return pubSub.asyncIterator(this.triggerName);
   }
 }

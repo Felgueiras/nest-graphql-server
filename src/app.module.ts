@@ -13,6 +13,7 @@ import { RecipesModule } from './recipes/recipes.module';
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
       autoSchemaFile: 'schema.gql',
+      context: ({ req }) => ({ req }),
     }),
     RecipesModule,
   ],
