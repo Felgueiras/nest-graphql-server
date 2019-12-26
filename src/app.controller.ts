@@ -6,10 +6,19 @@ import { AuthService } from './auth/auth.service';
 export class AppController {
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(AuthGuard('local'))
   @Post('auth/login')
   async login(@Request() req) {
-    return this.authService.login(req.user);
+    return this.authService.login(req.body);
+  }
+
+  @Post('auth/delete')
+  async delete(@Request() req) {
+    return this.authService.delete(req.body);
+  }
+
+  @Post('auth/register')
+  async register(@Request() req) {
+    return this.authService.register(req.body);
   }
 
   @UseGuards(AuthGuard('jwt'))
