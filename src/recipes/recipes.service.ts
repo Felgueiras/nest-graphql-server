@@ -6,12 +6,14 @@ import { Model } from 'mongoose';
 import { Recipe as RecipeModel } from '../models/recipe';
 import { Recipe } from './models/recipe';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class RecipesService {
   constructor(
     @InjectModel('Recipe')
     private readonly recipeModel: Model<RecipeModel>,
+    private usersService: UsersService,
   ) {}
 
   private readonly recipes: Recipe[] = [];
@@ -21,10 +23,14 @@ export class RecipesService {
    * @param data
    */
   async create(data: NewRecipeInput): Promise<RecipeModel> {
-    const newRecipe = data as Recipe;
+    const newRecipe = { ...data };
     const recipeDto = new CreateRecipeDto(newRecipe);
     const createdRecipe = new this.recipeModel(recipeDto);
-    return createdRecipe.save();
+    const recipe = await createdRecipe.save();
+    // add recipe to user
+    const user = await this.usersService.findOne(data.userId);
+    await this.usersService.addRecipeToUser(user, recipe._id);
+    return recipe;
   }
 
   async findOneById(id: string): Promise<Recipe> {

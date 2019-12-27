@@ -4,6 +4,9 @@ import { Field, InputType } from 'type-graphql';
 @InputType()
 export class NewRecipeInput {
   @Field()
+  userId: string;
+
+  @Field()
   @MaxLength(30)
   title: string;
 

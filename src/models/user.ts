@@ -4,4 +4,5 @@ export interface User extends Document {
   readonly userId: number;
   readonly username: string;
   readonly password: string;
+  readonly recipes: string[];
 }

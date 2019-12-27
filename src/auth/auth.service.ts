@@ -28,13 +28,19 @@ export class AuthService {
     return this.generateAccessToken(registeredUser);
   }
 
-  private generateAccessToken(registeredUser: User) {
+  /**
+   * Generate a JWT token by signing a payload.
+   *
+   * @param user user data
+   */
+  private generateAccessToken(user: User) {
     const payload = {
-      username: registeredUser.username,
-      sub: registeredUser.userId,
+      username: user.username,
+      sub: user.id,
     };
     return {
       access_token: this.jwtService.sign(payload),
+      userId: user.id,
     };
   }
 

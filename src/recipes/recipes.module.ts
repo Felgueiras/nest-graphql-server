@@ -4,9 +4,11 @@ import { RecipesResolver } from './recipes.resolver';
 import { RecipesService } from './recipes.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RecipeSchema } from './schemas/recipe.schema';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    UsersModule,
     MongooseModule.forFeature([{ name: 'Recipe', schema: RecipeSchema }]),
   ],
   providers: [RecipesResolver, RecipesService, DateScalar],

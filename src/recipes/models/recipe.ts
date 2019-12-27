@@ -5,6 +5,9 @@ export class Recipe {
   @Field(type => ID)
   id: string;
 
+  @Field(type => ID)
+  creator: string;
+
   @Field()
   title: string;
 

@@ -6,4 +6,8 @@ export const RecipeSchema = new mongoose.Schema({
   description: String,
   creationDate: String,
   ingredients: [String],
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 });

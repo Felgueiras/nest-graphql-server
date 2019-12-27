@@ -12,6 +12,7 @@ type Mutation {
 }
 
 input NewRecipeInput {
+  userId: String!
   title: String!
   description: String
   ingredients: [String!]!
@@ -24,6 +25,7 @@ type Query {
 
 type Recipe {
   id: ID!
+  creator: ID!
   title: String!
   description: String
   creationDate: Date!

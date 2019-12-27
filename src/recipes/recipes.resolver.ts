@@ -41,10 +41,10 @@ export class RecipesResolver {
   async addRecipe(
     @Args('newRecipeData') newRecipeData: NewRecipeInput,
   ): Promise<Recipe> {
-    const recipe = await this.recipesService.create(newRecipeData);
+    const recipe: RecipeModel = await this.recipesService.create(newRecipeData);
     // trigger subscription
     await pubSub.publish(this.triggerName, { recipeAdded: recipe });
-    return newRecipeData as Recipe;
+    return recipe as Recipe;
   }
 
   @Mutation(returns => Boolean)

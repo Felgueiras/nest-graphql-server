@@ -6,23 +6,37 @@ import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectModel('User')
+    private readonly userModel: Model<User>,
+  ) {}
 
-  constructor(@InjectModel('User')
-              private readonly userModel: Model<User>) {
+  /**
+   * Find user by Mongo ID.
+   *
+   * @param userId Mongo ID
+   */
+  async findOne(userId: string): Promise<User | undefined> {
+    return await this.userModel.findById(userId).exec();
   }
 
-  async findOne(username: string): Promise<User | undefined> {
-    const users = await this.userModel.find({ username}).exec();
-    return users.find(user => user.username === username);
+  async addRecipeToUser(user: User, recipeId: string) {
+    user.recipes.push(recipeId);
+    await user.save();
   }
 
   async login(user: User): Promise<User> {
-    const exists = await this.findOne(user.username);
+    const exists: User = await this.userModel.findOne({
+      username: user.username,
+    });
     if (!exists) {
-      throw new HttpException({
-        status: HttpStatus.FORBIDDEN,
-        error: 'User not registered',
-      }, 403);
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'User not registered',
+        },
+        403,
+      );
     }
     return exists;
   }
@@ -30,12 +44,15 @@ export class UsersService {
   async delete(user: User) {
     const exists = await this.findOne(user.username);
     if (!exists) {
-      throw new HttpException({
-        status: HttpStatus.FORBIDDEN,
-        error: 'User doesn\'t exist',
-      }, 403);
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: "User doesn't exist",
+        },
+        403,
+      );
     }
-    await this.userModel.deleteOne({username: user.username});
+    await this.userModel.deleteOne({ username: user.username });
   }
 
   /**
@@ -43,15 +60,20 @@ export class UsersService {
    * @param user
    */
   async register(user: User): Promise<User> {
-    const exists = await this.findOne(user.username);
+    const exists = await this.userModel.findOne({
+      username: user.username,
+    });
     if (exists) {
-      throw new HttpException({
-        status: HttpStatus.FORBIDDEN,
-        error: 'User already exists',
-      }, 403);
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'User already exists',
+        },
+        403,
+      );
     }
     const userDto = new CreateUserDto(user);
     const createdUser = new this.userModel(userDto);
-    return createdUser.save();
+    return await createdUser.save();
   }
 }
