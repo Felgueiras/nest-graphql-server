@@ -1,23 +1,46 @@
 import { NotFoundException, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveProperty,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { PubSub } from 'apollo-server-express';
 import { NewRecipeInput } from './dto/new-recipe.input';
 import { RecipesArgs } from './dto/recipes.args';
-import { Recipe } from './models/recipe';
+import { RecipeGQL } from './models/recipeGQL';
 import { Recipe as RecipeModel } from '../models/recipe';
 import { RecipesService } from './recipes.service';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { CurrentUser } from '../decorators/user.decorator';
 import { User } from '../models/user';
+import { UsersService } from '../users/users.service';
 
 const pubSub = new PubSub();
 
-@Resolver(of => Recipe)
+@Resolver(of => RecipeGQL)
 export class RecipesResolver {
-  constructor(private readonly recipesService: RecipesService) {}
+  constructor(
+    private readonly recipesService: RecipesService,
+    private readonly usersService: UsersService,
+  ) {}
 
-  @Query(returns => Recipe)
-  async recipe(@Args('id') id: string): Promise<Recipe> {
+  @ResolveProperty()
+  async creator(@Parent() recipe: RecipeGQL) {
+    // TODO: find user
+    const creatorID = (recipe as any)._doc.creator;
+    const creator = await this.usersService.findOne(creatorID);
+    if (!creator) {
+      throw new NotFoundException('User not found');
+    }
+    return creator;
+  }
+
+  @Query(returns => RecipeGQL)
+  async recipe(@Args('id') id: string): Promise<RecipeGQL> {
     const recipe = await this.recipesService.findOneById(id);
     if (!recipe) {
       throw new NotFoundException(id);
@@ -25,7 +48,7 @@ export class RecipesResolver {
     return recipe;
   }
 
-  @Query(returns => [Recipe])
+  @Query(returns => [RecipeGQL])
   @UseGuards(GqlAuthGuard)
   recipes(
     @Args() recipesArgs: RecipesArgs,
@@ -36,15 +59,23 @@ export class RecipesResolver {
 
   private triggerName = 'recipeAdded';
 
-  @Mutation(returns => Recipe)
+  @Mutation(returns => RecipeGQL)
   @UseGuards(GqlAuthGuard)
   async addRecipe(
     @Args('newRecipeData') newRecipeData: NewRecipeInput,
-  ): Promise<Recipe> {
-    const recipe: RecipeModel = await this.recipesService.create(newRecipeData);
+  ): Promise<RecipeGQL> {
+    const recipe = await this.recipesService.create(newRecipeData);
     // trigger subscription
-    await pubSub.publish(this.triggerName, { recipeAdded: recipe });
-    return recipe as Recipe;
+    const ret: RecipeGQL = await this.convertRecipeGQL(recipe);
+    // await pubSub.publish(this.triggerName, { recipeAdded: recipe });
+    return ret;
+  }
+
+  async convertRecipeGQL(recipe: RecipeModel): Promise<RecipeGQL> {
+    const { _doc } = recipe as any;
+    const copy = { ..._doc } as any;
+    copy.creator = await this.usersService.findOne(copy.creator);
+    return copy as RecipeGQL;
   }
 
   @Mutation(returns => Boolean)
@@ -52,7 +83,7 @@ export class RecipesResolver {
     return this.recipesService.remove(id);
   }
 
-  @Subscription(returns => Recipe)
+  @Subscription(returns => RecipeGQL)
   recipeAdded() {
     return pubSub.asyncIterator(this.triggerName);
   }

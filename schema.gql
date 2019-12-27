@@ -7,7 +7,7 @@
 scalar Date
 
 type Mutation {
-  addRecipe(newRecipeData: NewRecipeInput!): Recipe!
+  addRecipe(newRecipeData: NewRecipeInput!): RecipeGQL!
   removeRecipe(id: String!): Boolean!
 }
 
@@ -19,13 +19,13 @@ input NewRecipeInput {
 }
 
 type Query {
-  recipe(id: String!): Recipe!
-  recipes(skip: Int = 0, take: Int = 25): [Recipe!]!
+  recipe(id: String!): RecipeGQL!
+  recipes(skip: Int = 0, take: Int = 25): [RecipeGQL!]!
 }
 
-type Recipe {
+type RecipeGQL {
   id: ID!
-  creator: ID!
+  creator: UserGQL!
   title: String!
   description: String
   creationDate: Date!
@@ -33,5 +33,12 @@ type Recipe {
 }
 
 type Subscription {
-  recipeAdded: Recipe!
+  recipeAdded: RecipeGQL!
+}
+
+type UserGQL {
+  id: ID!
+  username: String!
+  password: String
+  recipes: [RecipeGQL!]!
 }

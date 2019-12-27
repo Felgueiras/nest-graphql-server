@@ -4,7 +4,7 @@ import { RecipesArgs } from './dto/recipes.args';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Recipe as RecipeModel } from '../models/recipe';
-import { Recipe } from './models/recipe';
+import { RecipeGQL } from './models/recipeGQL';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UsersService } from '../users/users.service';
 
@@ -16,7 +16,7 @@ export class RecipesService {
     private usersService: UsersService,
   ) {}
 
-  private readonly recipes: Recipe[] = [];
+  private readonly recipes: RecipeGQL[] = [];
 
   /**
    * Create a recipe
@@ -33,7 +33,7 @@ export class RecipesService {
     return recipe;
   }
 
-  async findOneById(id: string): Promise<Recipe> {
+  async findOneById(id: string): Promise<RecipeGQL> {
     const foundRecipe = this.recipes.find(recipe => recipe.id === id);
     if (!foundRecipe) {
       throw new NotFoundException('Recipe was not found');
