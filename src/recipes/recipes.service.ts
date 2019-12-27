@@ -1,18 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { NewRecipeInput } from './dto/new-recipe.input';
 import { RecipesArgs } from './dto/recipes.args';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Recipe as RecipeModel } from '../models/recipe';
 import { Recipe } from './models/recipe';
+import { CreateRecipeDto } from './dto/create-recipe.dto';
 
 @Injectable()
 export class RecipesService {
+  constructor(
+    @InjectModel('Recipe')
+    private readonly recipeModel: Model<RecipeModel>,
+  ) {}
+
   private readonly recipes: Recipe[] = [];
 
-  async create(data: NewRecipeInput): Promise<Recipe> {
+  /**
+   * Create a recipe
+   * @param data
+   */
+  async create(data: NewRecipeInput): Promise<RecipeModel> {
     const newRecipe = data as Recipe;
-    // set ID
-    newRecipe.id = Math.random() + '';
-    this.recipes.push(newRecipe);
-    return newRecipe;
+    const recipeDto = new CreateRecipeDto(newRecipe);
+    const createdRecipe = new this.recipeModel(recipeDto);
+    return createdRecipe.save();
   }
 
   async findOneById(id: string): Promise<Recipe> {
@@ -23,9 +35,10 @@ export class RecipesService {
     return foundRecipe;
   }
 
-  async findAll(recipesArgs: RecipesArgs): Promise<Recipe[]> {
+  async findAll(recipesArgs: RecipesArgs): Promise<RecipeModel[]> {
+    const recipes: RecipeModel[] = await this.recipeModel.find().exec();
     // TODO: process args
-    return this.recipes.slice();
+    return recipes;
   }
 
   async remove(id: string): Promise<boolean> {

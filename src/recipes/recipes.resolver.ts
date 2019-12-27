@@ -4,6 +4,7 @@ import { PubSub } from 'apollo-server-express';
 import { NewRecipeInput } from './dto/new-recipe.input';
 import { RecipesArgs } from './dto/recipes.args';
 import { Recipe } from './models/recipe';
+import { Recipe as RecipeModel } from '../models/recipe';
 import { RecipesService } from './recipes.service';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { CurrentUser } from '../decorators/user.decorator';
@@ -26,7 +27,10 @@ export class RecipesResolver {
 
   @Query(returns => [Recipe])
   @UseGuards(GqlAuthGuard)
-  recipes(@Args() recipesArgs: RecipesArgs, @CurrentUser() user: User): Promise<Recipe[]> {
+  recipes(
+    @Args() recipesArgs: RecipesArgs,
+    @CurrentUser() user: User,
+  ): Promise<RecipeModel[]> {
     return this.recipesService.findAll(recipesArgs);
   }
 
@@ -40,7 +44,7 @@ export class RecipesResolver {
     const recipe = await this.recipesService.create(newRecipeData);
     // trigger subscription
     await pubSub.publish(this.triggerName, { recipeAdded: recipe });
-    return recipe;
+    return newRecipeData as Recipe;
   }
 
   @Mutation(returns => Boolean)
