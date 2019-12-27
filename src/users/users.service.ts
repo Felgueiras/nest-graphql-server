@@ -3,6 +3,7 @@ import { User } from '../database/models/user';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
+import { compare, hash } from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -35,6 +36,7 @@ export class UsersService {
     const exists: User = await this.userModel.findOne({
       username: user.username,
     });
+
     if (!exists) {
       throw new HttpException(
         {
@@ -44,6 +46,18 @@ export class UsersService {
         403,
       );
     }
+    // validate password
+    const isEqual = await compare(user.password, exists.password);
+    if (!isEqual) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'User password mismatch',
+        },
+        403,
+      );
+    }
+
     return exists;
   }
 
@@ -78,7 +92,8 @@ export class UsersService {
         403,
       );
     }
-    const userDto = new CreateUserDto(user);
+    const password = await hash(user.password, 12);
+    const userDto = new CreateUserDto(user, password);
     const createdUser = new this.userModel(userDto);
     return await createdUser.save();
   }
