@@ -11,7 +11,7 @@ import {
 import { PubSub } from 'apollo-server-express';
 import { NewRecipeInput } from './dto/new-recipe.input';
 import { RecipesArgs } from './dto/recipes.args';
-import { RecipeGQL } from './models/recipeGQL';
+import { RecipeGQL } from '../graphql/models/recipeGQL';
 import { Recipe } from '../database/models/recipe';
 import { RecipesService } from './recipes.service';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
@@ -31,6 +31,20 @@ export class RecipesResolver {
   @ResolveProperty()
   async creator(@Parent() recipe: RecipeGQL) {
     return recipe.creator;
+  }
+
+  @Query(returns => [RecipeGQL])
+  async recipesForCategory(
+    @Args('category') category: string,
+  ): Promise<RecipeGQL[]> {
+    const recipes = await this.recipesService.filterByCategory(category);
+    return await this.convertRecipesGQL(recipes);
+  }
+  async convertRecipesGQL(recipes: Recipe[]): Promise<RecipeGQL[]> {
+    const convertedPromises = recipes.map(recipe =>
+      this.convertRecipeGQL(recipe),
+    );
+    return await Promise.all([...convertedPromises]);
   }
 
   @Query(returns => RecipeGQL)

@@ -42,6 +42,10 @@ export class RecipesService {
     return foundRecipe;
   }
 
+  async filterByCategory(category: string): Promise<RecipeModel[]> {
+    return this.recipeModel.find({ category });
+  }
+
   /**
    * Get all recipes.
    * @param recipesArgs

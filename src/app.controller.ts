@@ -11,6 +11,11 @@ export class AppController {
     return this.authService.login(req.body);
   }
 
+  @Post('auth/recover')
+  async recoverPassword(@Request() req) {
+    return this.authService.recoverPassword(req.body);
+  }
+
   @Post('auth/delete')
   async delete(@Request() req) {
     return this.authService.delete(req.body);

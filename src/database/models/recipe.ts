@@ -6,4 +6,5 @@ export interface Recipe extends Document {
   readonly creationDate: Date;
   readonly creator: string;
   readonly ingredients: string[];
+  readonly category: string;
 }

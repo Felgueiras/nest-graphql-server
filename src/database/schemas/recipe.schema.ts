@@ -5,6 +5,7 @@ export const RecipeSchema = new mongoose.Schema({
   title: String,
   description: String,
   creationDate: String,
+  category: String,
   ingredients: [String],
   creator: {
     type: mongoose.Schema.Types.ObjectId,

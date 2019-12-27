@@ -54,4 +54,14 @@ export class AuthService {
     const loggedUser = await this.usersService.login(user);
     return this.generateAccessToken(loggedUser);
   }
+
+  /**
+   * Recover lost password.
+   * @param user user info
+   */
+  async recoverPassword(user: User) {
+    // TODO recover password
+    const loggedUser = await this.usersService.login(user);
+    return this.generateAccessToken(loggedUser);
+  }
 }

@@ -10,6 +10,10 @@ export class NewRecipeInput {
   @MaxLength(30)
   title: string;
 
+  @Field()
+  @MaxLength(30)
+  category: string;
+
   @Field({ nullable: true })
   @IsOptional()
   @Length(30, 255)

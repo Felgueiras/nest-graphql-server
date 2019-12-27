@@ -14,11 +14,13 @@ type Mutation {
 input NewRecipeInput {
   userId: String!
   title: String!
+  category: String!
   description: String
   ingredients: [String!]!
 }
 
 type Query {
+  recipesForCategory(category: String!): [RecipeGQL!]!
   recipe(id: String!): RecipeGQL!
   recipes(skip: Int = 0, take: Int = 25): [RecipeGQL!]!
 }
@@ -27,6 +29,7 @@ type RecipeGQL {
   id: ID!
   creator: UserGQL!
   title: String!
+  category: String!
   description: String
   creationDate: Date!
   ingredients: [String!]!

@@ -12,6 +12,9 @@ export class RecipeGQL {
   @Field()
   title: string;
 
+  @Field()
+  category: string;
+
   @Field({ nullable: true })
   description?: string;
 
