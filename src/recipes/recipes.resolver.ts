@@ -12,11 +12,11 @@ import { PubSub } from 'apollo-server-express';
 import { NewRecipeInput } from './dto/new-recipe.input';
 import { RecipesArgs } from './dto/recipes.args';
 import { RecipeGQL } from './models/recipeGQL';
-import { Recipe as RecipeModel } from '../models/recipe';
+import { Recipe } from '../database/models/recipe';
 import { RecipesService } from './recipes.service';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { CurrentUser } from '../decorators/user.decorator';
-import { User } from '../models/user';
+import { User } from '../database/models/user';
 import { UsersService } from '../users/users.service';
 
 const pubSub = new PubSub();
@@ -30,13 +30,7 @@ export class RecipesResolver {
 
   @ResolveProperty()
   async creator(@Parent() recipe: RecipeGQL) {
-    // TODO: find user
-    const creatorID = (recipe as any)._doc.creator;
-    const creator = await this.usersService.findOne(creatorID);
-    if (!creator) {
-      throw new NotFoundException('User not found');
-    }
-    return creator;
+    return recipe.creator;
   }
 
   @Query(returns => RecipeGQL)
@@ -45,16 +39,21 @@ export class RecipesResolver {
     if (!recipe) {
       throw new NotFoundException(id);
     }
-    return recipe;
+    return await this.convertRecipeGQL(recipe);
   }
 
   @Query(returns => [RecipeGQL])
   @UseGuards(GqlAuthGuard)
-  recipes(
+  async recipes(
     @Args() recipesArgs: RecipesArgs,
     @CurrentUser() user: User,
-  ): Promise<RecipeModel[]> {
-    return this.recipesService.findAll(recipesArgs);
+  ): Promise<RecipeGQL[]> {
+    const recipesModel = await this.recipesService.findAll(recipesArgs);
+    // convert from Model to GQL
+    const convertedPromises = recipesModel.map(recipe =>
+      this.convertRecipeGQL(recipe),
+    );
+    return await Promise.all([...convertedPromises]);
   }
 
   private triggerName = 'recipeAdded';
@@ -71,7 +70,7 @@ export class RecipesResolver {
     return ret;
   }
 
-  async convertRecipeGQL(recipe: RecipeModel): Promise<RecipeGQL> {
+  async convertRecipeGQL(recipe: Recipe): Promise<RecipeGQL> {
     const { _doc } = recipe as any;
     const copy = { ..._doc } as any;
     copy.creator = await this.usersService.findOne(copy.creator);

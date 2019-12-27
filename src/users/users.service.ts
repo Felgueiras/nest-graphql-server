@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { User } from '../models/user';
+import { User } from '../database/models/user';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,6 +22,12 @@ export class UsersService {
 
   async addRecipeToUser(user: User, recipeId: string) {
     user.recipes.push(recipeId);
+    await user.save();
+  }
+
+  async removeRecipeFromUser(user: User, recipeId: string) {
+    const index = user.recipes.indexOf(recipeId);
+    user.recipes.splice(index, 1);
     await user.save();
   }
 

@@ -1,4 +1,4 @@
-import { User } from '../../models/user';
+import { User } from '../../database/models/user';
 
 export class CreateUserDto {
   constructor(user: User) {
