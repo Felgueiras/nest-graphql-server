@@ -23,6 +23,7 @@ type Query {
   recipesForCategory(category: String!): [RecipeGQL!]!
   recipe(id: String!): RecipeGQL!
   recipes(skip: Int = 0, take: Int = 25): [RecipeGQL!]!
+  myRecipes(skip: Int = 0, take: Int = 25): [RecipeGQL!]!
 }
 
 type RecipeGQL {

@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 import { Recipe as RecipeModel } from '../database/models/recipe';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UsersService } from '../users/users.service';
+import { User } from '../database/models/user';
 
 @Injectable()
 export class RecipesService {
@@ -64,5 +65,9 @@ export class RecipesService {
     const user = await this.usersService.findOne(deleted.creator);
     await this.usersService.removeRecipeFromUser(user, id);
     return true;
+  }
+
+  async userRecipes(user: User): Promise<RecipeModel[]> {
+    return await this.recipeModel.find({ creator: user.userId }).exec();
   }
 }

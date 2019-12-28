@@ -33,6 +33,8 @@ export class RecipesResolver {
     return recipe.creator;
   }
 
+  // TODO: user recipes
+
   @Query(returns => [RecipeGQL])
   async recipesForCategory(
     @Args('category') category: string,
@@ -68,6 +70,16 @@ export class RecipesResolver {
       this.convertRecipeGQL(recipe),
     );
     return await Promise.all([...convertedPromises]);
+  }
+
+  @Query(returns => [RecipeGQL])
+  @UseGuards(GqlAuthGuard)
+  async myRecipes(
+    @Args() recipesArgs: RecipesArgs,
+    @CurrentUser() user: User,
+  ): Promise<RecipeGQL[]> {
+    const recipesModel = await this.recipesService.userRecipes(user);
+    return await this.convertRecipesGQL(recipesModel);
   }
 
   private triggerName = 'recipeAdded';
