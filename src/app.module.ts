@@ -7,13 +7,16 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { RecipesModule } from './recipes/recipes.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
+    EmailModule,
     AuthModule,
     UsersModule,
     MongooseModule.forRoot(
-      'mongodb+srv://rafael:tTneRvEHtOlrKdvf@cluster0-kbveg.mongodb.net/test?retryWrites=true&w=majority',
+      'mongodb+srv://rafael:tTneRvEHtOlrKdvf@cluster0-kbveg.mongodb.net/production?retryWrites=true&w=majority',
+      { useNewUrlParser: true, useUnifiedTopology: true },
     ),
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
@@ -22,6 +25,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     }),
     ConfigModule.forRoot(),
     RecipesModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
