@@ -18,6 +18,9 @@ import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { CurrentUser } from '../decorators/user.decorator';
 import { User } from '../database/models/user';
 import { UsersService } from '../users/users.service';
+import { Arg } from 'type-graphql';
+import { FileInput } from './dto/file.input';
+import { GraphQLUpload } from 'graphql-upload';
 
 const pubSub = new PubSub();
 
@@ -111,5 +114,18 @@ export class RecipesResolver {
   @Subscription(returns => RecipeGQL)
   recipeAdded() {
     return pubSub.asyncIterator(this.triggerName);
+  }
+
+  @Mutation(returns => RecipeGQL)
+  @UseGuards(GqlAuthGuard)
+  async upload(
+    @Arg('file', type => GraphQLUpload)
+    file: FileInput,
+  ): Promise<RecipeGQL | any> {
+    const { encoding } = await file;
+    const newMimetype = 'image/webp';
+
+    const extension = '.webp';
+    const newFilename = ('abc' + extension).toLowerCase();
   }
 }

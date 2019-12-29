@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DateScalar } from '../common/scalars/date.scalar';
+import { DateScalar } from '../graphql/scalars/date.scalar';
 import { RecipesResolver } from './recipes.resolver';
 import { RecipesService } from './recipes.service';
 import { MongooseModule } from '@nestjs/mongoose';

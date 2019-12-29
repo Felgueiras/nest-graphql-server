@@ -23,4 +23,7 @@ export class RecipeGQL {
 
   @Field(type => [String])
   ingredients: string[];
+
+  @Field({ nullable: true })
+  filename?: string;
 }

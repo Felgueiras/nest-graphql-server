@@ -3,7 +3,7 @@ import { NewRecipeInput } from './dto/new-recipe.input';
 import { RecipesArgs } from './dto/recipes.args';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Recipe as RecipeModel } from '../database/models/recipe';
+import { Recipe, Recipe as RecipeModel } from '../database/models/recipe';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UsersService } from '../users/users.service';
 import { User } from '../database/models/user';
@@ -69,5 +69,11 @@ export class RecipesService {
 
   async userRecipes(user: User): Promise<RecipeModel[]> {
     return await this.recipeModel.find({ creator: user.userId }).exec();
+  }
+
+  async setPhoto(recipeId: string, file: any) {
+    const buff = new Buffer(JSON.stringify(file));
+    const base64data = buff.toString('base64');
+    return this.recipeModel.findOneAndUpdate({}, { photo: base64data });
   }
 }

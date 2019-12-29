@@ -6,9 +6,16 @@
 """Date custom scalar type"""
 scalar Date
 
+input FileInput {
+  filename: String!
+  mimetype: String!
+  encoding: String!
+}
+
 type Mutation {
   addRecipe(newRecipeData: NewRecipeInput!): RecipeGQL!
   removeRecipe(id: String!): Boolean!
+  upload(file: Upload!): RecipeGQL!
 }
 
 input NewRecipeInput {
@@ -17,6 +24,7 @@ input NewRecipeInput {
   category: String!
   description: String
   ingredients: [String!]!
+  photo: String
 }
 
 type Query {
@@ -34,11 +42,15 @@ type RecipeGQL {
   description: String
   creationDate: Date!
   ingredients: [String!]!
+  filename: String
 }
 
 type Subscription {
   recipeAdded: RecipeGQL!
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 type UserGQL {
   id: ID!

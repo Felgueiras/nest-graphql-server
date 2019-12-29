@@ -21,4 +21,9 @@ export class NewRecipeInput {
 
   @Field(type => [String])
   ingredients: string[];
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @Length(30, 255)
+  photo?: string;
 }
