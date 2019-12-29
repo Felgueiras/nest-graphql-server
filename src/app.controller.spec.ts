@@ -1,22 +1,30 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { DatabaseModule } from './database/database.module';
 
 describe('AppController', () => {
   let appController: AppController;
+  let appService: AppService;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
+      imports: [AuthModule, UsersModule, DatabaseModule],
       controllers: [AppController],
       providers: [AppService],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    appService = module.get<AppService>(AppService);
+    appController = module.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.login(123)).toBe('Hello World!');
+  describe('service test', () => {
+    it('should return "Hello World!"', async () => {
+      const result = 'test';
+      jest.spyOn(appService, 'helloWorld').mockImplementation(() => result);
+      expect(await appController.findAll()).toBe(result);
     });
   });
 });

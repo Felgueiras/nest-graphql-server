@@ -32,7 +32,7 @@ export class UsersService {
     await user.save();
   }
 
-  async login(user: User): Promise<User> {
+  async login(user: CreateUserDto): Promise<CreateUserDto> {
     const exists: User = await this.userModel.findOne({
       username: user.username,
     });
@@ -58,7 +58,7 @@ export class UsersService {
       );
     }
 
-    return exists;
+    return new CreateUserDto(exists);
   }
 
   async delete(user: User) {

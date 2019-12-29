@@ -3,6 +3,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../database/models/user';
 import { EmailService } from '../email/email.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,14 +36,12 @@ export class AuthService {
    *
    * @param user user data
    */
-  private generateAccessToken(user: User) {
+  private generateAccessToken(user: CreateUserDto) {
     const payload = {
       username: user.username,
-      sub: user.id,
     };
     return {
       access_token: this.jwtService.sign(payload),
-      userId: user.id,
     };
   }
 
@@ -51,9 +50,9 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
+  async login(user: CreateUserDto) {
     // check if was registered
-    const loggedUser = await this.usersService.login(user);
+    const loggedUser: CreateUserDto = await this.usersService.login(user);
     return this.generateAccessToken(loggedUser);
   }
 

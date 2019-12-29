@@ -1,10 +1,14 @@
 import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth/auth.service';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly appService: AppService,
+  ) {}
 
   @Post('auth/login')
   async login(@Request() req) {
@@ -30,5 +34,10 @@ export class AppController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @Get()
+  findAll(): string {
+    return this.appService.helloWorld();
   }
 }
