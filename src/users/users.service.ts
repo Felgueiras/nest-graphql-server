@@ -2,8 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '../database/models/user';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateUserDto } from './dto/create-user.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 import { compare, hash } from 'bcryptjs';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +33,7 @@ export class UsersService {
     await user.save();
   }
 
-  async login(user: CreateUserDto): Promise<CreateUserDto> {
+  async login(user: LoginUserDto): Promise<boolean> {
     const exists: User = await this.userModel.findOne({
       username: user.username,
     });
@@ -57,8 +58,7 @@ export class UsersService {
         403,
       );
     }
-
-    return new CreateUserDto(exists);
+    return true;
   }
 
   async delete(user: User) {
@@ -79,7 +79,7 @@ export class UsersService {
    * Register user.
    * @param user
    */
-  async register(user: User): Promise<User> {
+  async register(user: RegisterUserDto): Promise<User> {
     const exists = await this.userModel.findOne({
       username: user.username,
     });
@@ -92,9 +92,10 @@ export class UsersService {
         403,
       );
     }
+    // store hashed password
     const password = await hash(user.password, 12);
-    const userDto = new CreateUserDto(user, password);
-    const createdUser = new this.userModel(userDto);
+    const mongoUser = { ...user, password };
+    const createdUser = new this.userModel(mongoUser);
     return await createdUser.save();
   }
 }

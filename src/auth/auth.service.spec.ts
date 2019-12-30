@@ -6,7 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { DatabaseModule } from '../database/database.module';
 import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { RegisterUserDto } from '../users/dto/register-user.dto';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -35,7 +35,7 @@ describe('AuthService', () => {
   });
 
   it.skip('shouldn login registered user', async () => {
-    const user: CreateUserDto = {
+    const user: RegisterUserDto = {
       userId: 123,
       password: '1234',
       email: 'example@org.pt',
@@ -48,7 +48,7 @@ describe('AuthService', () => {
   });
 
   it("shouldn't register user with missing fields", async () => {
-    const user: CreateUserDto = {
+    const user: RegisterUserDto = {
       userId: 123,
       password: '1234',
       email: 'example@org.pt',

@@ -3,7 +3,8 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../database/models/user';
 import { EmailService } from '../email/email.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { RegisterUserDto } from '../users/dto/register-user.dto';
+import { LoginUserDto } from '../users/dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
    * Register new user.
    * @param user new user info
    */
-  async register(user: User) {
+  async register(user: RegisterUserDto) {
     const registeredUser = await this.usersService.register(user);
     return this.generateAccessToken(registeredUser);
   }
@@ -36,7 +37,7 @@ export class AuthService {
    *
    * @param user user data
    */
-  private generateAccessToken(user: CreateUserDto) {
+  private generateAccessToken(user: LoginUserDto) {
     const payload = {
       username: user.username,
     };
@@ -50,10 +51,10 @@ export class AuthService {
     return null;
   }
 
-  async login(user: CreateUserDto) {
+  async login(user: LoginUserDto) {
     // check if was registered
-    const loggedUser: CreateUserDto = await this.usersService.login(user);
-    return this.generateAccessToken(loggedUser);
+    await this.usersService.login(user);
+    return this.generateAccessToken(user);
   }
 
   /**
