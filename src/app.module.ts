@@ -8,6 +8,7 @@ import { RecipesModule } from './recipes/recipes.module';
 import { EmailModule } from './email/email.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
+import { CookbookModule } from './cookbook/cookbook.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    CookbookModule,
   ],
   controllers: [AppController],
   providers: [AppService],
